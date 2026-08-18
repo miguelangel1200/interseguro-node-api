@@ -27,8 +27,8 @@ ortogonalidad de Q y estadísticas globales.
 | Variable        | Descripción                                 | Default                |
 |-----------------|---------------------------------------------|------------------------|
 | `PORT`          | Puerto HTTP (Cloud Run lo inyecta).         | `3000`                 |
-| `AUTH_USER`     | Usuario de login.                           | `admin`                |
-| `AUTH_PASSWORD` | Hash bcrypt de la contraseña (no claro).    | hash de `password123`  |
+| `AUTH_USER`     | Usuario de login.                           | definido en el despliegue |
+| `AUTH_PASSWORD` | Hash bcrypt de la contraseña (no claro).    | definido en el despliegue |
 | `JWT_SECRET`    | Secreto HS256 compartido con go-api.        | `interseguro-dev-secret`|
 | `JWT_ISSUER`    | Issuer del JWT.                             | `interseguro`          |
 | `JWT_AUDIENCE`  | Audience del JWT.                           | `interseguro-api`      |
