@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { StatisticsServiceImpl, ValidationError } from './statistics.service';
+import { MAX_MATRIX_DIMENSION, StatisticsServiceImpl, ValidationError } from './statistics.service';
 import { StatisticsRepository } from './ports/statistics-repository';
 import { Statistics } from '../domain/statistics';
 
@@ -49,5 +49,30 @@ describe('StatisticsServiceImpl', () => {
 
     await service.getStatistics({ Q: [[1]], R: [[2]] });
     expect(save).toHaveBeenCalledTimes(1);
+  });
+
+  it('rechaza matrices que superan las dimensiones máximas', async () => {
+    const service = new StatisticsServiceImpl(new FakeRepository());
+
+    // Matriz (MAX+1) x 1 en Q.
+    const tooLarge = Array.from({ length: MAX_MATRIX_DIMENSION + 1 }, () => [1]);
+    await expect(
+      service.getStatistics({ Q: tooLarge, R: [[2]] }),
+    ).rejects.toBeInstanceOf(ValidationError);
+
+    // Matriz 1 x (MAX+1) en R.
+    const tooWide = [Array.from({ length: MAX_MATRIX_DIMENSION + 1 }, () => 1)];
+    await expect(
+      service.getStatistics({ Q: [[1]], R: tooWide }),
+    ).rejects.toBeInstanceOf(ValidationError);
+  });
+
+  it('acepta matrices en el límite máximo', async () => {
+    const service = new StatisticsServiceImpl(new FakeRepository());
+    const atLimit = Array.from({ length: MAX_MATRIX_DIMENSION }, () =>
+      Array.from({ length: MAX_MATRIX_DIMENSION }, () => 1),
+    );
+    const result = await service.getStatistics({ Q: atLimit, R: atLimit });
+    expect(result.id).toBeTruthy();
   });
 });

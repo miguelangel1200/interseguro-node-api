@@ -103,3 +103,40 @@ describe('CORS', () => {
     expect(res.headers['access-control-allow-headers']).toMatch(/authorization/i);
   });
 });
+
+describe('Seguridad (helmet)', () => {
+  it('incluye cabeceras de seguridad básicas', async () => {
+    const res = await request(testApp()).get('/health');
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+    expect(res.headers['x-frame-options']).toBe('DENY');
+    expect(res.headers['referrer-policy']).toBe('no-referrer');
+  });
+});
+
+describe('Rate limiting del login', () => {
+  it('bloquea con 429 tras superar el máximo de intentos', async () => {
+    const app = createApp({
+      envUser: { username: 'admin', password: 'password123' },
+      auth: {
+        secret: 'test-secret',
+        issuer: 'interseguro',
+        audience: 'interseguro-api',
+        expiresIn: '1h',
+      },
+      loginRateLimit: 3,
+    });
+
+    for (let i = 0; i < 3; i++) {
+      const res = await request(app)
+        .post('/auth/login')
+        .send({ username: 'admin', password: 'incorrecta' });
+      expect(res.status).toBe(401);
+    }
+
+    const blocked = await request(app)
+      .post('/auth/login')
+      .send({ username: 'admin', password: 'incorrecta' });
+    expect(blocked.status).toBe(429);
+    expect(blocked.body.code).toBe('RATE_LIMITED');
+  });
+});

@@ -5,6 +5,8 @@
  */
 import express, { Express } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { StatisticsServiceImpl } from './application/statistics.service';
 import { AuthServiceImpl, AuthConfig } from './application/auth.service';
 import { InMemoryStatisticsRepository } from './infrastructure/repository/in-memory-repository';
@@ -19,6 +21,8 @@ export interface AppConfig {
   port?: number;
   auth?: AuthConfig;
   envUser?: EnvUserConfig;
+  /** Máximo de intentos de login por ventana e IP (anti fuerza bruta). */
+  loginRateLimit?: number;
 }
 
 /** Crea y configura la aplicación Express con las dependencias inyectadas. */
@@ -47,11 +51,33 @@ export function createApp(config: AppConfig = {}): Express {
   const service = new StatisticsServiceImpl(repository); // caso de uso
   const controller = new StatisticsController(service);  // puerto de entrada
 
-  app.use(express.json());
+  app.use(express.json({ limit: '1mb' }));
+
+  // Cabeceras de seguridad HTTP básicas (helmet). La CSP se gestiona en el
+  // frontend (Cloudflare Pages) vía public/_headers.
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      frameguard: { action: 'deny' },
+    }),
+  );
 
   // CORS: permite que el frontend (Cloudflare Pages o dev) consuma la API.
   const corsOrigin = process.env.CORS_ORIGIN ?? '*';
   app.use(cors({ origin: corsOrigin, allowedHeaders: ['Content-Type', 'Authorization'] }));
+
+  // Rate limiting en el login para mitigar fuerza bruta.
+  const loginMax = config.loginRateLimit ?? 10;
+  app.use(
+    '/auth/login',
+    rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutos
+      limit: loginMax,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: { error: 'too many login attempts, try again later', code: 'RATE_LIMITED' },
+    }),
+  );
 
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok', service: 'node-api' });
