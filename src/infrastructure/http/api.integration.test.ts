@@ -5,7 +5,7 @@ import { createApp } from '../../server';
 // Configuración determinista para las pruebas de integración.
 function testApp() {
   return createApp({
-    envUser: { username: 'admin', password: 'password123' },
+    envUser: { username: 'admin', password: '$2b$10$TUTDxxdMlDFF/RWFarXTcuMceWFdtpIMvdwt3FNhJGopg0QZXC.Tu' },
     auth: {
       secret: 'test-secret',
       issuer: 'interseguro',
@@ -116,7 +116,7 @@ describe('Seguridad (helmet)', () => {
 describe('Rate limiting del login', () => {
   it('bloquea con 429 tras superar el máximo de intentos', async () => {
     const app = createApp({
-      envUser: { username: 'admin', password: 'password123' },
+      envUser: { username: 'admin', password: '$2b$10$TUTDxxdMlDFF/RWFarXTcuMceWFdtpIMvdwt3FNhJGopg0QZXC.Tu' },
       auth: {
         secret: 'test-secret',
         issuer: 'interseguro',

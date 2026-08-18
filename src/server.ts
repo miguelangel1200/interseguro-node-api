@@ -30,9 +30,11 @@ export function createApp(config: AppConfig = {}): Express {
   const app = express();
 
   // Repositorio de usuarios (puerto de salida de auth).
+  // AUTH_PASSWORD debe contener un hash bcrypt; el default es un hash de
+  // "password123" para desarrollo.
   const userConfig: EnvUserConfig = config.envUser ?? {
     username: process.env.AUTH_USER ?? 'admin',
-    password: process.env.AUTH_PASSWORD ?? 'password123',
+    password: process.env.AUTH_PASSWORD ?? '$2b$10$TUTDxxdMlDFF/RWFarXTcuMceWFdtpIMvdwt3FNhJGopg0QZXC.Tu',
   };
   const userRepository = new EnvUserRepository(userConfig);
 

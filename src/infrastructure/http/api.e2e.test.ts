@@ -9,7 +9,7 @@ let baseURL: string;
 
 beforeAll(async () => {
   const app = createApp({
-    envUser: { username: 'admin', password: 'password123' },
+    envUser: { username: 'admin', password: '$2b$10$TUTDxxdMlDFF/RWFarXTcuMceWFdtpIMvdwt3FNhJGopg0QZXC.Tu' },
     auth: {
       secret: 'e2e-secret',
       issuer: 'interseguro',

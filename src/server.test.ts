@@ -41,20 +41,20 @@ describe('createApp con valores por defecto', () => {
 });
 
 describe('createApp con variables de entorno', () => {
-  it('toma las credenciales de AUTH_USER/AUTH_PASSWORD del entorno', async () => {
+  it('toma credenciales del entorno (AUTH_PASSWORD como hash bcrypt)', async () => {
     clearEnv();
     process.env.AUTH_USER = 'envuser';
-    process.env.AUTH_PASSWORD = 'envpass';
+    process.env.AUTH_PASSWORD = '$2b$10$TUTDxxdMlDFF/RWFarXTcuMceWFdtpIMvdwt3FNhJGopg0QZXC.Tu'; // hash de password123
     process.env.JWT_SECRET = 'env-secret';
     process.env.CORS_ORIGIN = 'https://intranet.example.com';
 
     const app = createApp();
     const bad = await request(app)
       .post('/auth/login')
-      .send({ username: 'admin', password: 'password123' });
+      .send({ username: 'envuser', password: 'password-incorrecta' });
     expect(bad.status).toBe(401);
 
-    const ok = await request(app).post('/auth/login').send({ username: 'envuser', password: 'envpass' });
+    const ok = await request(app).post('/auth/login').send({ username: 'envuser', password: 'password123' });
     expect(ok.status).toBe(200);
     expect(ok.body.token).toBeTruthy();
 
