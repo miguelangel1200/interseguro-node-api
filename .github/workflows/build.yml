@@ -21,12 +21,16 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Build & push image to Artifact Registry
-        run: gcloud builds submit --tag "${REGION}-docker.pkg.dev/${PROJECT_ID}/interseguro-node-api/interseguro-node-api:latest" .
         env:
+          CLOUDSDK_AUTH_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
           PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           REGION: ${{ secrets.GCP_REGION }}
+        run: gcloud builds submit --tag "${REGION}-docker.pkg.dev/${PROJECT_ID}/interseguro-node-api/interseguro-node-api:latest" .
