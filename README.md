@@ -18,12 +18,15 @@ emite JWT y calcula estadísticas de las matrices generadas por
 |-----------------|------------------------------------------|------------------------|
 | `PORT`          | Puerto HTTP (Cloud Run lo inyecta).      | `3000`                 |
 | `AUTH_USER`     | Usuario de login.                        | `admin`                |
-| `AUTH_PASSWORD` | Contraseña de login.                     | `password123`          |
+| `AUTH_PASSWORD` | Hash bcrypt de la contraseña (no claro). | hash de `password123`  |
 | `JWT_SECRET`    | Secreto HS256 compartido con go-api.     | `interseguro-dev-secret`|
 | `JWT_ISSUER`    | Issuer del JWT.                          | `interseguro`          |
 | `JWT_AUDIENCE`  | Audience del JWT.                        | `interseguro-api`      |
 | `JWT_EXPIRES_IN`| Duración del token.                      | `2h`                   |
-| `CORS_ORIGIN`   | Origen CORS permitido (`*` en la prueba).| `*`                    |
+| `CORS_ORIGIN`   | Origen CORS permitido.                   | `*`                    |
+
+Seguridad: contraseña comparada con **bcrypt**, **rate limit** en login
+(10/15 min/IP), matrices máx. 100×100, body limit 1mb y cabeceras **helmet**.
 
 ## Despliegue
 
