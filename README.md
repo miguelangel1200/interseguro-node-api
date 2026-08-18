@@ -38,5 +38,21 @@ emite JWT y calcula estadísticas de las matrices generadas por
 npm install
 npm run dev        # tsx watch
 npm test           # vitest
+npm run test:coverage  # vitest con reporte de cobertura (umbral 85%)
 npm run typecheck  # tsc --noEmit
 ```
+
+### Tests y cobertura
+
+Organización por capa (arquitectura hexagonal):
+
+| Capa                                  | Archivos de test                                              |
+|---------------------------------------|---------------------------------------------------------------|
+| Dominio                               | `src/domain/statistics.test.ts`                               |
+| Aplicación (casos de uso)             | `src/application/auth.service.test.ts`, `statistics.service.test.ts` (con mocks) |
+| Infraestructura (adaptadores)         | `env-user-repository.test.ts`, `jwt-middleware.test.ts`, `in-memory-repository.test.ts` |
+| HTTP (controllers + DTOs + errores)   | `controllers.test.ts`, `dto.test.ts`, `error-handler.test.ts` |
+| Integración/E2E (datos mockeados)     | `api.integration.test.ts`, `api.e2e.test.ts` (servidor real + fetch), `server.test.ts` |
+
+Cobertura objetivo: >85% (statements, branches, functions, lines). El reporte
+se genera en `coverage/` y el umbral se valida en `vitest.config.mts`.

@@ -124,4 +124,22 @@ describe('computeStatistics', () => {
     expect(stats.global.matricesCount).toBe(2);
     expect(stats.diagonal.any).toBe(false);
   });
+
+  it('maneja matrices sin elementos (estadísticas globales nulas)', () => {
+    const stats = computeStatistics({ Q: [[]], R: [[]] });
+    expect(stats.global.matricesCount).toBe(2);
+    expect(stats.global.max).toBeNull();
+    expect(stats.global.min).toBeNull();
+    expect(stats.global.mean).toBeNull();
+    expect(stats.global.sum).toBe(0);
+    expect(stats.qr.isSquare).toBe(false);
+    expect(stats.qr.determinantOfR).toBeNull();
+  });
+
+  it('detecta matrices diagonales en el resumen diagonal', () => {
+    const diag = computeStatistics({ Q: [[1, 0], [0, 1]], R: [[2, 0], [0, 3]] });
+    expect(diag.diagonal.any).toBe(true);
+    expect(diag.diagonal.matrices).toContain('Q');
+    expect(diag.diagonal.matrices).toContain('R');
+  });
 });
